@@ -99,10 +99,14 @@ class Bala(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.x = posicion[0] + 5
 		self.rect.y = posicion[1] + 32
+		self.bando = 0 # Sentido en el que se dirige la bala
 
 	# Actualizar posicion de la bala
 	def update(self):
-		self.rect.y += 5
+		if self.bando == 1: # Bando -> 1, bala disparada por el enemigo
+			self.rect.y += 5
+		else:
+			self.rect.y -= 5 # Bala disparada por el jugador
 
 # ------------------------------------------------------------------------------
 # FUNCIONES
@@ -125,10 +129,11 @@ if __name__ == '__main__':
 	pygame.init()
 	screen = pygame.display.set_mode([ANCHO,ALTO])
 	# Cargar imagen de fondo
-	background = pygame.image.load("images/background.jpg").convert_alpha()
+	fondo = pygame.image.load("images/background.jpg").convert_alpha()
 
 	# Crear un jugador
 	jugador = Jugador("images/playerShip1_red.png")
+	ls_jugador = pygame.sprite.Group() # para analizar las colisiones con las balas
 	# Lista que va a contener todos los elementos
 	ls_todos = pygame.sprite.Group()
 	# Lista que contiene todos los enemigos
@@ -143,6 +148,7 @@ if __name__ == '__main__':
 		e = crearEnemigo(1)
 		ls_enemigo.add(e)
 		ls_todos.add(e)
+	ls_jugador.add(jugador)
 	ls_todos.add(jugador)
 
 	# Mouse invisible
@@ -156,10 +162,33 @@ if __name__ == '__main__':
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				terminar = True
+			# Disparo del juador
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				# Boton izquierdo del mouse
+				if pygame.mouse.get_pressed()[0] == 1:
+					bala = Bala('images/Lasers/laserBlue01.png', pos)
+					ls_balas.add(bala)
+					ls_todos.add(bala)
 
 		# La posicion del jugador la define la posicion del mouse
 		jugador.set_pos(pos)
-		screen.blit(background,(0,0))
+		screen.blit(fondo,(0,0))
+
+		# Nave enemiga es destruida por el impacto de la bala
+		for b in ls_balas:
+			ls_impactos = pygame.sprite.spritecollide(b, ls_enemigo, True)
+			for imp in ls_impactos:
+				ls_balas.remove(b)
+				ls_todos.remove(b)
+				puntos += 1
+				print puntos
+
+		# Bala enemigo impacta con el jugador
+		for eb in ls_ebalas:
+			impactado = pygame.sprite.spritecollide(eb, ls_jugador, False)
+			for imp in impactado:
+				ls_ebalas.remove(eb)
+				ls_todos.remove(eb)
 
 		ls_todos.update()
 
@@ -169,6 +198,7 @@ if __name__ == '__main__':
 				x = enemigo.rect.x
 				y = enemigo.rect.y
 				bala = Bala('images/Lasers/laserRed01.png', [x,y])
+				bala.bando = 1
 				ls_ebalas.add(bala)
 				ls_todos.add(bala)
 				enemigo.disparar = False
