@@ -3,6 +3,7 @@ from pygame.locals import *
 import time
 import sys
 import random
+import caminos
 
 ANCHO = 800
 ALTO = 600
@@ -34,6 +35,7 @@ class Jugador(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.vidas = 3 # Vidas del jugador
 		#self.shield = 0 # Escudo
+		self.marcador = None # Colision JUGADOR - MARCADOR
 
 	# Modificar posicion del jugador
 	def set_pos(self, pos):
@@ -42,11 +44,18 @@ class Jugador(pygame.sprite.Sprite):
 
 	# Actualizar el estado del jugador
 	def update(self):
-		pass
+		choque = pygame.sprite.spritecollide(self, self.marcador, False)
+		for muro in choque:
+			# 560 -> ALTO - tam(marcador) |  99-> altura jugador
+			if self.rect.y > (560 - 99):
+				self.rect.bottom = marcador.rect.top
 
 	# Realizar disparo
-	def shot(self):
-		pass
+	def shot(self, ls_balas, ls_todos):
+		bala = Bala('images/Lasers/laserBlue01.png',[self.rect.x+45, self.rect.y])
+		ls_balas.add(bala)
+		ls_todos.add(bala)
+		return ls_balas, ls_todos
 # ------------------------------------------------------------------------------
 # CLASE ENEMIGO
 #-------------------------------------------------------------------------------
@@ -109,6 +118,24 @@ class Bala(pygame.sprite.Sprite):
 			self.rect.y -= 5 # Bala disparada por el jugador
 
 # ------------------------------------------------------------------------------
+# CLASE MARCADOR
+#-------------------------------------------------------------------------------
+class Marcador(pygame.sprite.Sprite):
+	def __init__(self, imagen):
+		pygame.sprite.Sprite.__init__(self)
+		self.image = pygame.image.load(imagen).convert_alpha() #Cargar imagen
+		self.rect = self.image.get_rect()
+		self.rect.x = 0
+		self.rect.y = 560
+		# DATOS DEL JUGADOR
+		self.vidas = None
+		self.escudo = None
+		self.puntos = None
+
+
+	def update(self):
+		pass
+# ------------------------------------------------------------------------------
 # FUNCIONES
 #-------------------------------------------------------------------------------
 
@@ -130,9 +157,14 @@ if __name__ == '__main__':
 	screen = pygame.display.set_mode([ANCHO,ALTO])
 	# Cargar imagen de fondo
 	fondo = pygame.image.load("images/background.jpg").convert_alpha()
+	# Cargar marcador:
+	marcador = Marcador("images/marcador.png")
+	ls_marc = pygame.sprite.Group()
+	ls_marc.add(marcador) # ANALIZAR COLISION JUGADOR - MARCADOR
 
 	# Crear un jugador
 	jugador = Jugador("images/playerShip1_red.png")
+	jugador.marcador = ls_marc # Para que el jugador no pase por encima del marcador
 	ls_jugador = pygame.sprite.Group() # para analizar las colisiones con las balas
 	# Lista que va a contener todos los elementos
 	ls_todos = pygame.sprite.Group()
@@ -150,6 +182,7 @@ if __name__ == '__main__':
 		ls_todos.add(e)
 	ls_jugador.add(jugador)
 	ls_todos.add(jugador)
+	ls_todos.add(marcador)
 
 	# Mouse invisible
 	pygame.mouse.set_visible(False)
@@ -167,9 +200,7 @@ if __name__ == '__main__':
 			elif event.type == pygame.MOUSEBUTTONDOWN:
 				# Boton izquierdo del mouse
 				if pygame.mouse.get_pressed()[0] == 1:
-					bala = Bala('images/Lasers/laserBlue01.png', [pos[0]+45, pos[1]])
-					ls_balas.add(bala)
-					ls_todos.add(bala)
+					jugador.shot(ls_balas, ls_todos)
 
 		# La posicion del jugador la define la posicion del mouse
 		jugador.set_pos(pos)
