@@ -56,7 +56,7 @@ class Enemigo(pygame.sprite.Sprite):
 		pygame.sprite.Sprite.__init__(self)
 		self.image = pygame.image.load(imagen).convert_alpha() #Cargar imagen
 		self.rect = self.image.get_rect()
-		#self.vidas = 2 # Vidas del enemigo
+		self.vidas = 2 # Vidas del enemigo
 		self.direccion = 0 # Sentido del movimiento del enemigo
 		self.disparar = False
 		self.recarga = 100
@@ -97,8 +97,8 @@ class Bala(pygame.sprite.Sprite):
 		pygame.sprite.Sprite.__init__(self)
 		self.image = pygame.image.load(imagen).convert_alpha() #Cargar imagen
 		self.rect = self.image.get_rect()
-		self.rect.x = posicion[0] + 5
-		self.rect.y = posicion[1] + 32
+		self.rect.x = posicion[0]
+		self.rect.y = posicion[1]
 		self.bando = 0 # Sentido en el que se dirige la bala
 
 	# Actualizar posicion de la bala
@@ -154,6 +154,7 @@ if __name__ == '__main__':
 	# Mouse invisible
 	pygame.mouse.set_visible(False)
 	terminar = False
+	# Un punto representa un impacto a un enemigo
 	puntos = 0
 	reloj = pygame.time.Clock()
 
@@ -166,7 +167,7 @@ if __name__ == '__main__':
 			elif event.type == pygame.MOUSEBUTTONDOWN:
 				# Boton izquierdo del mouse
 				if pygame.mouse.get_pressed()[0] == 1:
-					bala = Bala('images/Lasers/laserBlue01.png', pos)
+					bala = Bala('images/Lasers/laserBlue01.png', [pos[0]+45, pos[1]])
 					ls_balas.add(bala)
 					ls_todos.add(bala)
 
@@ -175,18 +176,26 @@ if __name__ == '__main__':
 		screen.blit(fondo,(0,0))
 
 		# Nave enemiga es destruida por el impacto de la bala
-		for b in ls_balas:
-			ls_impactos = pygame.sprite.spritecollide(b, ls_enemigo, True)
+		for e in ls_enemigo:
+			ls_impactos = pygame.sprite.spritecollide(e, ls_balas, True)
 			for imp in ls_impactos:
-				ls_balas.remove(b)
-				ls_todos.remove(b)
+				e.vidas -=1 #Por cada impacto la vida del enemigo disminuye en 1
+				if e.vidas == 0:
+					ls_enemigo.remove(e)
+					ls_todos.remove(e)
 				puntos += 1
-				print puntos
+				print "PUNTAJE: ", puntos
 
 		# Bala enemigo impacta con el jugador
 		for eb in ls_ebalas:
 			impactado = pygame.sprite.spritecollide(eb, ls_jugador, False)
 			for imp in impactado:
+				# Impacto de bala enemiga reduce la vida del jugador en 1
+				jugador.vidas -= 1
+				# Cuando las vidas llegan a 0, se termina el juego
+				if jugador.vidas < 0:
+					terminar = True
+					print "FIN DEL JUEGO"
 				ls_ebalas.remove(eb)
 				ls_todos.remove(eb)
 
@@ -195,8 +204,8 @@ if __name__ == '__main__':
 		# DISPARO DE LOS ENEMIGOS
 		for enemigo in ls_enemigo:
 			if enemigo.disparar:
-				x = enemigo.rect.x
-				y = enemigo.rect.y
+				x = enemigo.rect.x + 5
+				y = enemigo.rect.y + 32
 				bala = Bala('images/Lasers/laserRed01.png', [x,y])
 				bala.bando = 1
 				ls_ebalas.add(bala)
