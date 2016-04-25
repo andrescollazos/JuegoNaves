@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygame
 from pygame.locals import *
 import time
@@ -122,11 +123,11 @@ class Bala(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.x = posicion[0]
 		self.rect.y = posicion[1]
-		self.bando = 0 # Sentido en el que se dirige la bala
-
+		self.pos_j = 0 # Posicion(jugador) a la cual se dirige la bala
+		self.trayectoria = [] # Trayectoria desde la nave al jugador
 	# Actualizar posicion de la bala
 	def update(self):
-		if self.bando == 1: # Bando -> 1, bala disparada por el enemigo
+		if self.pos_j != 0: # Bala disparada por enemigo
 			self.rect.y += 5
 		else:
 			self.rect.y -= 5 # Bala disparada por el jugador
@@ -255,10 +256,10 @@ if __name__ == '__main__':
 	# Puntaje
 	icono_puntos= Simbolo(num_marcador[11], 'puntos', [666, 570])
 	icono_xp	= Simbolo(num_marcador[10], 'x', [706, 570])
-	puntos = 0
-	punt0 = Simbolo(num_marcador[0], 0, [771, 570])
-	punt1 = Simbolo(num_marcador[0], 0, [752, 570])
-	punt2 = Simbolo(num_marcador[0], 0, [733, 570])
+	puntos 		= 0
+	punt0 		= Simbolo(num_marcador[0], 0, [771, 570])
+	punt1		= Simbolo(num_marcador[0], 0, [752, 570])
+	punt2		= Simbolo(num_marcador[0], 0, [733, 570])
 
 	# Crear un jugador
 	jugador = Jugador("images/playerShip1_red.png")
@@ -320,17 +321,19 @@ if __name__ == '__main__':
 		for e in ls_enemigo:
 			ls_impactos = pygame.sprite.spritecollide(e, ls_balas, True)
 			for imp in ls_impactos:
-				e.vidas -=1 #Por cada impacto la vida del enemigo disminuye en 1
-				if e.vidas == 0:
-					ls_enemigo.remove(e)
-					ls_todos.remove(e)
-				# Un punto representa un impacto a una nave enemiga
-				p = aumentar_puntaje(puntos)
-				punt0.simbolo = p[0]
-				punt1.simbolo = p[1]
-				punt2.simbolo = p[2]
-				puntos += 1
-				print "PUNTAJE: ", puntos
+				if e.rect.y > 0 - 83:	# La bala del jugador daña, solamente
+										# cuando el enemigo es visible
+					e.vidas -=1 #Por cada impactovida del enemigo disminuye en 1
+					if e.vidas == 0:
+						ls_enemigo.remove(e)
+						ls_todos.remove(e)
+					# Un punto representa un impacto a una nave enemiga
+					p = aumentar_puntaje(puntos)
+					punt0.simbolo = p[0]
+					punt1.simbolo = p[1]
+					punt2.simbolo = p[2]
+					puntos += 1
+					print "PUNTAJE: ", puntos
 
 		# Bala enemigo impacta con el jugador
 		for eb in ls_ebalas:
@@ -341,6 +344,7 @@ if __name__ == '__main__':
 				# Cuando las vidas llegan a 0, se termina el juego
 				if vida.simbolo < 0:
 					terminar = True
+					#ls_todos.remove(jugador)
 					print "FIN DEL JUEGO"
 				ls_ebalas.remove(eb)
 				ls_todos.remove(eb)
@@ -349,14 +353,23 @@ if __name__ == '__main__':
 
 		# DISPARO DE LOS ENEMIGOS
 		for enemigo in ls_enemigo:
-			if enemigo.disparar:
-				x = enemigo.rect.x + 5
-				y = enemigo.rect.y + 32
-				bala = Bala('images/Lasers/laserRed01.png', [x,y])
-				bala.bando = 1
-				ls_ebalas.add(bala)
-				ls_todos.add(bala)
-				enemigo.disparar = False
+			# El enemigo solo empieza a disparar cuando este es visible
+			if enemigo.rect.y > 0 - 84: #84 -> altura del enemigo
+				if enemigo.disparar:
+					x = enemigo.rect.x + 5
+					y = enemigo.rect.y + 32
+					#bala = Bala('images/Lasers/laserRed01.png', [x,y])
+					bala = Bala('images/Lasers/laserRed01.png', [x,y])
+					bala.pos_j = pos # La bala se apunta al jugador
+					ls_ebalas.add(bala)
+					ls_todos.add(bala)
+					enemigo.disparar = False
+
+		# LAS BALAS QUE HAYAN SALIDO DE LA PANTALLA YA NO SON TENIDAS EN CUENTA
+		for eb in ls_ebalas:
+			if eb.rect.x < 0 or eb.rect.x > ANCHO or eb.rect.y > ALTO:
+				ls_ebalas.remove(eb)
+				ls_todos.remove(eb)
 
 		ls_todos.draw(screen)
 		reloj.tick(60)
