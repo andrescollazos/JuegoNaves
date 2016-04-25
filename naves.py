@@ -9,8 +9,26 @@ ANCHO = 800
 ALTO = 600
 BLANCO = (255,255,255)
 
+# Imagenes de los numeros del marcador
+num_marcador = [
+		"images/UI/numeral0.png",
+		"images/UI/numeral1.png",
+		"images/UI/numeral2.png",
+		"images/UI/numeral3.png",
+		"images/UI/numeral4.png",
+		"images/UI/numeral5.png",
+		"images/UI/numeral6.png",
+		"images/UI/numeral7.png",
+		"images/UI/numeral8.png",
+		"images/UI/numeral9.png",
+		"images/UI/numeralx.png",	# ICONO 'X'
+		"images/UI/cursor.png",		# ICONO DE PUNTOS
+		"images/UI/playerLife.png"	# ICONO VIDA DEL JUGADOR
+]
+
+
 # Imagenes de enemigos del primer nivel
-enemys1 = [
+enemigos1 = [
 		"images/Enemies/enemyBlack1.png",
 		"images/Enemies/enemyBlue1.png",
 		"images/Enemies/enemyGreen1.png",
@@ -18,7 +36,7 @@ enemys1 = [
 ]
 
 # Imangenes de enemigos del segundo nivel
-enemys2 = [
+enemigos2 = [
 		"images/Enemies/enemyBlack2.png",
 		"images/Enemies/enemyBlue2.png",
 		"images/Enemies/enemyGreen2.png",
@@ -33,9 +51,9 @@ class Jugador(pygame.sprite.Sprite):
 		pygame.sprite.Sprite.__init__(self)
 		self.image = pygame.image.load(imagen).convert_alpha() #Cargar imagen
 		self.rect = self.image.get_rect()
-		self.vidas = 3 # Vidas del jugador
+		#self.vidas = 3 # Vidas del jugador
 		#self.shield = 0 # Escudo
-		self.marcador = None # Colision JUGADOR - MARCADOR
+		#self.marcador = None # Colision JUGADOR - MARCADOR
 
 	# Modificar posicion del jugador
 	def set_pos(self, pos):
@@ -44,11 +62,7 @@ class Jugador(pygame.sprite.Sprite):
 
 	# Actualizar el estado del jugador
 	def update(self):
-		choque = pygame.sprite.spritecollide(self, self.marcador, False)
-		for muro in choque:
-			# 560 -> ALTO - tam(marcador) |  99-> altura jugador
-			if self.rect.y > (560 - 99):
-				self.rect.bottom = marcador.rect.top
+		pass
 
 	# Realizar disparo
 	def shot(self, ls_balas, ls_todos):
@@ -120,33 +134,105 @@ class Bala(pygame.sprite.Sprite):
 # ------------------------------------------------------------------------------
 # CLASE MARCADOR
 #-------------------------------------------------------------------------------
-class Marcador(pygame.sprite.Sprite):
-	def __init__(self, imagen):
+class Simbolo(pygame.sprite.Sprite):
+	def __init__(self, image, simbolo, posicion):
 		pygame.sprite.Sprite.__init__(self)
-		self.image = pygame.image.load(imagen).convert_alpha() #Cargar imagen
+		self.image = pygame.image.load(image).convert_alpha()
 		self.rect = self.image.get_rect()
-		self.rect.x = 0
-		self.rect.y = 560
-		# DATOS DEL JUGADOR
-		self.vidas = None
-		self.escudo = None
-		self.puntos = None
-
-
+		self.rect.x = posicion[0]
+		self.rect.y = posicion[1]
+		# Se requiere saber la posicion para actualizarlo (cargar otra imagen)
+		self.pos = posicion # Esta nunca cambia
+		self.simbolo = simbolo
 	def update(self):
-		pass
+		# Cargar la imagen para cada simbolo
+		if self.simbolo == 0:
+			self.image = pygame.image.load(num_marcador[0]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.simbolo == 1:
+			self.image = pygame.image.load(num_marcador[1]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.simbolo == 2:
+			self.image = pygame.image.load(num_marcador[2]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.simbolo == 3:
+			self.image = pygame.image.load(num_marcador[3]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.simbolo == 4:
+			self.image = pygame.image.load(num_marcador[4]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.simbolo == 5:
+			self.image = pygame.image.load(num_marcador[5]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.simbolo == 6:
+			self.image = pygame.image.load(num_marcador[6]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.simbolo == 7:
+			self.image = pygame.image.load(num_marcador[7]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.simbolo == 8:
+			self.image = pygame.image.load(num_marcador[8]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.simbolo == 9:
+			self.image = pygame.image.load(num_marcador[9]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.simbolo == 'x':
+			self.image = pygame.image.load(num_marcador[10]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.simbolo == 'vida':
+			self.image = pygame.image.load(num_marcador[12]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.simbolo == 'puntos':
+			self.image = pygame.image.load(num_marcador[11]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+
 # ------------------------------------------------------------------------------
 # FUNCIONES
 #-------------------------------------------------------------------------------
+# ej: aumentar_puntaje(0) -> [0, 0, 1]
+# ej: aumentar_puntaje(9) -> [0, 1, 0]
+# ej: aumentar_puntaje(99) ->[1, 0, 0]
+def aumentar_puntaje(puntos):
+	puntos = puntos + 1
+	d1 = puntos%10
+	d2 = (puntos%100)/10
+	d3 = (puntos%1000)/100
+	return [d1, d2, d3]
 
 # lvl es el nivel en el que esta el jugador
 def crearEnemigo(lvl):
 	# Seleccionar un enemigo aleatorio
-	e = random.randrange(0, len(enemys1))
+	e = random.randrange(0, len(enemigos1))
 	if lvl == 1:
-		enemigo = Enemigo(enemys1[e])
+		enemigo = Enemigo(enemigos1[e])
 	elif lvl == 2:
-		enemigo = Enemigo(enemys2[e])
+		enemigo = Enemigo(enemigos2[e])
 	enemigo.rect.x = random.randrange(ANCHO)
 	enemigo.rect.y = random.randrange(-252, -84)
 	return enemigo
@@ -157,14 +243,25 @@ if __name__ == '__main__':
 	screen = pygame.display.set_mode([ANCHO,ALTO])
 	# Cargar imagen de fondo
 	fondo = pygame.image.load("images/background.jpg").convert_alpha()
-	# Cargar marcador:
-	marcador = Marcador("images/marcador.png")
-	ls_marc = pygame.sprite.Group()
-	ls_marc.add(marcador) # ANALIZAR COLISION JUGADOR - MARCADOR
+
+	# Marcador:
+	# El marcador consiste: Uu digito para la vida y el escudo, tres digitos
+	# los puntos
+
+	# Vida del jugador
+	icono_vida 	= Simbolo(num_marcador[12], 'vida',[10,570])
+	icono_xv 	= Simbolo(num_marcador[10], 'x', [57, 570])
+	vida 		= Simbolo(num_marcador[9], 9, [84, 570])
+	# Puntaje
+	icono_puntos= Simbolo(num_marcador[11], 'puntos', [666, 570])
+	icono_xp	= Simbolo(num_marcador[10], 'x', [706, 570])
+	puntos = 0
+	punt0 = Simbolo(num_marcador[0], 0, [771, 570])
+	punt1 = Simbolo(num_marcador[0], 0, [752, 570])
+	punt2 = Simbolo(num_marcador[0], 0, [733, 570])
 
 	# Crear un jugador
 	jugador = Jugador("images/playerShip1_red.png")
-	jugador.marcador = ls_marc # Para que el jugador no pase por encima del marcador
 	ls_jugador = pygame.sprite.Group() # para analizar las colisiones con las balas
 	# Lista que va a contener todos los elementos
 	ls_todos = pygame.sprite.Group()
@@ -176,19 +273,28 @@ if __name__ == '__main__':
 	ls_ebalas = pygame.sprite.Group()
 
 	# Crear enemigos
-	for i in range(2):
+	for i in range(10):
 		e = crearEnemigo(1)
 		ls_enemigo.add(e)
 		ls_todos.add(e)
+	# Agregar sprites a la lista de todos los elementos
+	# Sprite del jugador
 	ls_jugador.add(jugador)
 	ls_todos.add(jugador)
-	ls_todos.add(marcador)
+	# Sprites de vida
+	ls_todos.add(vida)
+	ls_todos.add(icono_vida)
+	ls_todos.add(icono_xv)
+	# Sprites de puntos
+	ls_todos.add(punt0)
+	ls_todos.add(punt1)
+	ls_todos.add(punt2)
+	ls_todos.add(icono_puntos)
+	ls_todos.add(icono_xp)
 
 	# Mouse invisible
 	pygame.mouse.set_visible(False)
 	terminar = False
-	# Un punto representa un impacto a un enemigo
-	puntos = 0
 	reloj = pygame.time.Clock()
 
 	while not terminar:
@@ -207,6 +313,10 @@ if __name__ == '__main__':
 		screen.blit(fondo,(0,0))
 
 		# Nave enemiga es destruida por el impacto de la bala
+		if len(ls_enemigo) == 0:
+			terminar = True
+			print "VICTORIA"
+
 		for e in ls_enemigo:
 			ls_impactos = pygame.sprite.spritecollide(e, ls_balas, True)
 			for imp in ls_impactos:
@@ -214,6 +324,11 @@ if __name__ == '__main__':
 				if e.vidas == 0:
 					ls_enemigo.remove(e)
 					ls_todos.remove(e)
+				# Un punto representa un impacto a una nave enemiga
+				p = aumentar_puntaje(puntos)
+				punt0.simbolo = p[0]
+				punt1.simbolo = p[1]
+				punt2.simbolo = p[2]
 				puntos += 1
 				print "PUNTAJE: ", puntos
 
@@ -222,9 +337,9 @@ if __name__ == '__main__':
 			impactado = pygame.sprite.spritecollide(eb, ls_jugador, False)
 			for imp in impactado:
 				# Impacto de bala enemiga reduce la vida del jugador en 1
-				jugador.vidas -= 1
+				vida.simbolo -= 1
 				# Cuando las vidas llegan a 0, se termina el juego
-				if jugador.vidas < 0:
+				if vida.simbolo < 0:
 					terminar = True
 					print "FIN DEL JUEGO"
 				ls_ebalas.remove(eb)
