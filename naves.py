@@ -123,14 +123,18 @@ class Bala(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.x = posicion[0]
 		self.rect.y = posicion[1]
+		self.velocidad = 5
 		self.pos_j = 0 # Posicion(jugador) a la cual se dirige la bala
 		self.trayectoria = [] # Trayectoria desde la nave al jugador
+		self.cont = 0 # para moverse por el vector de trayectoria
 	# Actualizar posicion de la bala
 	def update(self):
 		if self.pos_j != 0: # Bala disparada por enemigo
-			self.rect.y += 5
+			self.rect.x = self.trayectoria[self.cont][0]
+			self.rect.y = self.trayectoria[self.cont][1]
+			self.cont += self.velocidad # velocidad de la bala
 		else:
-			self.rect.y -= 5 # Bala disparada por el jugador
+			self.rect.y -= self.velocidad # Bala disparada por el jugador
 
 # ------------------------------------------------------------------------------
 # CLASE MARCADOR
@@ -238,7 +242,22 @@ def crearEnemigo(lvl):
 	enemigo.rect.y = random.randrange(-252, -84)
 	return enemigo
 
-
+# Funcion que retorna la trayectoria que seguirá la bala hasta el Jugador
+def btrayectoria(e, j): # b-> posicion nave enemiga al momento de disparar
+	m = (e[1] - j[1])/(e[0] - j[0])
+	b = e[1] - m*e[0]
+	if j[0] < e[0]:
+		x = j[0] - 1000
+	elif j[0] > e[0]:
+		x = j[0] + 1000
+	elif j[0] == e[0]:
+		x = j[0]
+	y = m*x + b
+	trayectoria = caminos.linea(e, (x,y))
+	return trayectoria
+# ------------------------------------------------------------------------------
+# MAIN
+#-------------------------------------------------------------------------------
 if __name__ == '__main__':
 	pygame.init()
 	screen = pygame.display.set_mode([ANCHO,ALTO])
@@ -274,7 +293,7 @@ if __name__ == '__main__':
 	ls_ebalas = pygame.sprite.Group()
 
 	# Crear enemigos
-	for i in range(10):
+	for i in range(3):
 		e = crearEnemigo(1)
 		ls_enemigo.add(e)
 		ls_todos.add(e)
@@ -358,9 +377,10 @@ if __name__ == '__main__':
 				if enemigo.disparar:
 					x = enemigo.rect.x + 5
 					y = enemigo.rect.y + 32
-					#bala = Bala('images/Lasers/laserRed01.png', [x,y])
 					bala = Bala('images/Lasers/laserRed01.png', [x,y])
 					bala.pos_j = pos # La bala se apunta al jugador
+					# Trayectoria de la bala hasta el jugador:
+					bala.trayectoria = btrayectoria((x,y), pos)
 					ls_ebalas.add(bala)
 					ls_todos.add(bala)
 					enemigo.disparar = False
