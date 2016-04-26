@@ -101,7 +101,7 @@ class Enemigo(pygame.sprite.Sprite):
 		if self.rect.x <= 0:
 			self.direccion = 1
 			self.rect.y += self.velocidad
-		if self.rect.x >= (ANCHO - 32):
+		if self.rect.x >= (ANCHO - self.rect[2]):
 			self.direccion = 0
 			self.rect.y += self.velocidad
 
@@ -253,7 +253,8 @@ def aumentar_puntaje(puntos):
 	return [d1, d2, d3]
 
 # lvl es el nivel en el que esta el jugador
-def crearEnemigo(lvl):
+# i -> que tan lejos aparece de la zona visible
+def crearEnemigo(lvl, i):
 	# Seleccionar un enemigo aleatorio
 	e = random.randrange(0, len(enemigos1))
 	if lvl == 1:
@@ -262,7 +263,8 @@ def crearEnemigo(lvl):
 		enemigo = Enemigo(enemigos2[e])
 	enemigo.rect.x = random.randrange(ANCHO)
 	# enemigo.rect[3] -> Altura del enemigo
-	enemigo.rect.y = random.randrange(-3*enemigo.rect[3], -1*enemigo.rect[3])
+	# El enemigo aparece aleatoriamente por encima del area visible
+	enemigo.rect.y = -1*enemigo.rect[3]*(1 + i*random.randrange(100)/100)
 	return enemigo
 
 # Funcion que retorna la trayectoria que seguirá la bala hasta el Jugador
@@ -284,9 +286,12 @@ def btrayectoria(e, j): # b-> posicion nave enemiga al momento de disparar
 if __name__ == '__main__':
 	pygame.init()
 	screen = pygame.display.set_mode([ANCHO,ALTO])
-	# Cargar imagen de fondo (imagenes de dominio publico)
-	fondo1 = pygame.image.load("images/background.jpg").convert_alpha()
-	fondo2 = pygame.image.load("images/background2.jpg").convert_alpha()
+	# Cargar imagenes de fondo (imagenes de dominio publico)
+	fondo1 = pygame.image.load("images/fondos/background.jpg").convert_alpha()
+	fondo2 = pygame.image.load("images/fondos/background2.jpg").convert_alpha()
+	lvlcomp = pygame.image.load("images/fondos/nivelcompletado.jpg").convert_alpha()
+	vict = pygame.image.load("images/fondos/victoria.jpg").convert_alpha()
+	derr = pygame.image.load("images/fondos/derrota.jpg").convert_alpha()
 
 	# ICONOS
 	# Vida del jugador
@@ -359,6 +364,10 @@ if __name__ == '__main__':
 	pygame.mouse.set_visible(False)
 	crear = True # Booleano que permite saber si crear o no enemigos
 	terminar = False
+	# Para mostrar una imagen de victoria
+	victoria = False
+	# Para mostrar una imagen de derrota
+	derrota = False
 	reloj = pygame.time.Clock()
 
 	while not terminar:
@@ -369,7 +378,7 @@ if __name__ == '__main__':
 			elif nivel.valor == 2:
 				emax = emax2
 			for i in range(emax):
-				e = crearEnemigo(nivel.valor)
+				e = crearEnemigo(nivel.valor, i)
 				e.vidas = nivel.valor + 1 # Vidas del enemigo
 				e.nivel = nivel.valor
 				e.recargaFijo = 100 - 5*nivel.valor
@@ -401,9 +410,9 @@ if __name__ == '__main__':
 		yp = random.randrange(30, ALTO-30)
 		# CANTIDAD MAXIMA DE PODER A CAPTURAR
 		escmax = 9 # Siempre es 9
-		pildoramax = 9
-		 # POSIBILIDAD DE QUE SALGA UN PODER-> 1/1000
-		poder = random.randrange(1000)
+		pildoramax = 9 # Siempre es 9
+		 # PROBABILIDAD (aprox) DE QUE SALGA UN PODER-> nivel.valor/1000
+		poder = random.randrange(1000/nivel.valor)
 		if poder == 27 and pbandera == False: #27 -> numero aleatorio
 			sel = random.randrange(2)
 			if sel == 0: # Escudo
@@ -454,7 +463,8 @@ if __name__ == '__main__':
 				crear = True
 				nivel.valor = 2
 			elif nivel.valor == 2:
-				terminar = True
+				#terminar = True
+				victoria = True
 				print "VICTORIA"
 
 		# Bala enemigo impacta con el jugador
@@ -468,8 +478,8 @@ if __name__ == '__main__':
 					vida.valor -= 1
 					# Cuando las vidas llegan a 0, se termina el juego
 					if vida.valor < 0:
-						terminar = True
-						#ls_todos.remove(jugador)
+						#terminar = True
+						derrota = True
 						print "FIN DEL JUEGO"
 				ls_ebalas.remove(eb)
 				ls_todos.remove(eb)
@@ -502,3 +512,25 @@ if __name__ == '__main__':
 		ls_todos.draw(screen)
 		reloj.tick(60)
 		pygame.display.flip()
+
+		# EN CASO DE PASAR DE NIVEL 0 VICTORIA O DERROTA :
+		if crear:
+			# Esperar cinco segundos
+			pygame.time.wait(3000)
+			screen.blit(lvlcomp,(0,0))
+			pygame.display.flip()
+			pygame.time.wait(3000)
+		if victoria:
+			# Esperar cinco segundos
+			pygame.time.wait(3000)
+			screen.blit(vict,(0,0))
+			pygame.display.flip()
+			pygame.time.wait(3000)
+			terminar = True
+		if derrota:
+			# Esperar cinco segundos
+			pygame.time.wait(3000)
+			screen.blit(derr,(0,0))
+			pygame.display.flip()
+			pygame.time.wait(3000)
+			terminar = True
