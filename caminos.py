@@ -3,7 +3,7 @@ import sys
 #-------------------------------------------------------------------------------
 # ALGORITMO DE PUNTO MEDIO - BRESENHAM PARA LINEA
 #-------------------------------------------------------------------------------
-def linea(pantalla, color, p1, p2):
+def linea(p1, p2):
 	puntos = []
 	dx = (p2[0] - p1[0])
 	dy = (p2[1] - p1[1])
@@ -31,7 +31,7 @@ def linea(pantalla, color, p1, p2):
 			else:
 				y += stepy
 				p += 2*(dy-dx)
-			pantalla.set_at((x, y), color)
+			#pantalla.set_at((x, y), color)
 			puntos.append((x, y))
 	else:
 		p = 2*dx-dy
@@ -42,7 +42,7 @@ def linea(pantalla, color, p1, p2):
 			else:
 				x += stepx
 				p += 2*(dx-dy)
-			pantalla.set_at((x, y), color)
+			#pantalla.set_at((x, y), color)
 			puntos.append((x, y))
 	return puntos
 
