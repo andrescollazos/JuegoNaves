@@ -51,23 +51,32 @@ def linea(p1, p2):
 #-------------------------------------------------------------------------------
 # En la carpeta PNG esta el diagrama que muestra la division de la cirncunferencia
 # por octantes -> /images/division_circ.png
-def simetricos(pantalla, color, vc, v):
+def simetricos(pantalla, color, vc, v, octantes):
 	xc, yc = vc[0], vc[1]
 	x, y = v[0], v[1]
-	pantalla.set_at((xc + x, yc + y), color) # 1
-	pantalla.set_at((xc - x, yc + y), color) # 2
-	pantalla.set_at((xc + x, yc - y), color) # 3
-	pantalla.set_at((xc - x, yc - y), color) # 4
-	pantalla.set_at((xc + y, yc + x), color) # 5
-	pantalla.set_at((xc - y, yc + x), color) # 6
-	pantalla.set_at((xc + y, yc - x), color) # 7
-	pantalla.set_at((xc - y, yc - x), color) # 8
+	#pantalla.set_at((xc + x, yc + y), color) # 1
+	octantes[0].append((xc + x, yc + y))
+	#pantalla.set_at((xc - x, yc + y), color) # 2
+	octantes[1].append((xc - x, yc + y))
+	#pantalla.set_at((xc + x, yc - y), color) # 3
+	octantes[2].append((xc + x, yc - y))
+	#pantalla.set_at((xc - x, yc - y), color) # 4
+	octantes[3].append((xc - x, yc - y))
+	#pantalla.set_at((xc + y, yc + x), color) # 5
+	octantes[4].append((xc + y, yc + x))
+	#pantalla.set_at((xc - y, yc + x), color) # 6
+	octantes[5].append((xc - y, yc + x))
+	#pantalla.set_at((xc + y, yc - x), color) # 7
+	octantes[6].append((xc + y, yc - x))
+	#pantalla.set_at((xc - y, yc - x), color) # 8
+	octantes[7].append((xc - y, yc - x))
 
-def circunferencia(pantalla, color, centro, radio):
+def circunferencia(centro, radio):
+	octantes = [[], [], [], [], [], [], [], []]
 	x = 0
 	y = radio
 	d = 1 - y
-	simetricos(pantalla, color, centro, (x, y))
+	simetricos(centro, (x, y), octantes)
 	while y > x:
 		if d < 0:
 			d = d + 2*x + 1
@@ -75,4 +84,5 @@ def circunferencia(pantalla, color, centro, radio):
 			d = d + 2*(x - y) + 1
 			y = y - 1
 		x = x + 1
-		simetricos(pantalla, color, centro, (x,y))
+		simetricos(centro, (x,y), octantes)
+	return octantes
