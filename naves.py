@@ -24,7 +24,10 @@ num_marcador = [
 		"images/UI/numeral9.png",
 		"images/UI/numeralx.png",	# ICONO 'X'
 		"images/UI/cursor.png",		# ICONO DE PUNTOS
-		"images/UI/playerLife.png"	# ICONO VIDA DEL JUGADOR
+		"images/UI/playerLife.png",	# ICONO VIDA DEL JUGADOR
+		"images/UI/pildora.png",	# PODER DE PILDORA (SALUD)
+		"images/UI/escudo.png",		# PODER DE ESCUDO
+		"images/UI/icono_escudo.png"# ICONO DE ESCUDO
 ]
 
 
@@ -140,7 +143,7 @@ class Bala(pygame.sprite.Sprite):
 # CLASE MARCADOR
 #-------------------------------------------------------------------------------
 class Simbolo(pygame.sprite.Sprite):
-	def __init__(self, image, simbolo, posicion):
+	def __init__(self, image, valor, posicion):
 		pygame.sprite.Sprite.__init__(self)
 		self.image = pygame.image.load(image).convert_alpha()
 		self.rect = self.image.get_rect()
@@ -148,71 +151,86 @@ class Simbolo(pygame.sprite.Sprite):
 		self.rect.y = posicion[1]
 		# Se requiere saber la posicion para actualizarlo (cargar otra imagen)
 		self.pos = posicion # Esta nunca cambia
-		self.simbolo = simbolo
+		self.valor = valor
 	def update(self):
 		# Cargar la imagen para cada simbolo
-		if self.simbolo == 0:
+		if self.valor == 0:
 			self.image = pygame.image.load(num_marcador[0]).convert_alpha()
 			self.rect = self.image.get_rect()
 			self.rect.x = self.pos[0]
 			self.rect.y = self.pos[1]
-		elif self.simbolo == 1:
+		elif self.valor == 1:
 			self.image = pygame.image.load(num_marcador[1]).convert_alpha()
 			self.rect = self.image.get_rect()
 			self.rect.x = self.pos[0]
 			self.rect.y = self.pos[1]
-		elif self.simbolo == 2:
+		elif self.valor == 2:
 			self.image = pygame.image.load(num_marcador[2]).convert_alpha()
 			self.rect = self.image.get_rect()
 			self.rect.x = self.pos[0]
 			self.rect.y = self.pos[1]
-		elif self.simbolo == 3:
+		elif self.valor == 3:
 			self.image = pygame.image.load(num_marcador[3]).convert_alpha()
 			self.rect = self.image.get_rect()
 			self.rect.x = self.pos[0]
 			self.rect.y = self.pos[1]
-		elif self.simbolo == 4:
+		elif self.valor == 4:
 			self.image = pygame.image.load(num_marcador[4]).convert_alpha()
 			self.rect = self.image.get_rect()
 			self.rect.x = self.pos[0]
 			self.rect.y = self.pos[1]
-		elif self.simbolo == 5:
+		elif self.valor == 5:
 			self.image = pygame.image.load(num_marcador[5]).convert_alpha()
 			self.rect = self.image.get_rect()
 			self.rect.x = self.pos[0]
 			self.rect.y = self.pos[1]
-		elif self.simbolo == 6:
+		elif self.valor == 6:
 			self.image = pygame.image.load(num_marcador[6]).convert_alpha()
 			self.rect = self.image.get_rect()
 			self.rect.x = self.pos[0]
 			self.rect.y = self.pos[1]
-		elif self.simbolo == 7:
+		elif self.valor == 7:
 			self.image = pygame.image.load(num_marcador[7]).convert_alpha()
 			self.rect = self.image.get_rect()
 			self.rect.x = self.pos[0]
 			self.rect.y = self.pos[1]
-		elif self.simbolo == 8:
+		elif self.valor == 8:
 			self.image = pygame.image.load(num_marcador[8]).convert_alpha()
 			self.rect = self.image.get_rect()
 			self.rect.x = self.pos[0]
 			self.rect.y = self.pos[1]
-		elif self.simbolo == 9:
+		elif self.valor == 9:
 			self.image = pygame.image.load(num_marcador[9]).convert_alpha()
 			self.rect = self.image.get_rect()
 			self.rect.x = self.pos[0]
 			self.rect.y = self.pos[1]
-		elif self.simbolo == 'x':
+		elif self.valor == 'x':
 			self.image = pygame.image.load(num_marcador[10]).convert_alpha()
 			self.rect = self.image.get_rect()
 			self.rect.x = self.pos[0]
 			self.rect.y = self.pos[1]
-		elif self.simbolo == 'vida':
+		elif self.valor == 'vida':
 			self.image = pygame.image.load(num_marcador[12]).convert_alpha()
 			self.rect = self.image.get_rect()
 			self.rect.x = self.pos[0]
 			self.rect.y = self.pos[1]
-		elif self.simbolo == 'puntos':
+		elif self.valor == 'puntos':
 			self.image = pygame.image.load(num_marcador[11]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.valor == 'escudo':
+			self.image = pygame.image.load(num_marcador[14]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.valor == 'icono_escudo':
+			self.image = pygame.image.load(num_marcador[15]).convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.x = self.pos[0]
+			self.rect.y = self.pos[1]
+		elif self.valor == 'pildora':
+			self.image = pygame.image.load(num_marcador[13]).convert_alpha()
 			self.rect = self.image.get_rect()
 			self.rect.x = self.pos[0]
 			self.rect.y = self.pos[1]
@@ -265,10 +283,7 @@ if __name__ == '__main__':
 	# Cargar imagen de fondo
 	fondo = pygame.image.load("images/background.jpg").convert_alpha()
 
-	# Marcador:
-	# El marcador consiste: Uu digito para la vida y el escudo, tres digitos
-	# los puntos
-
+	# ICONOS
 	# Vida del jugador
 	icono_vida 	= Simbolo(num_marcador[12], 'vida',[10,ALTO-30])
 	icono_xv 	= Simbolo(num_marcador[10], 'x', [57, ALTO-30])
@@ -280,10 +295,20 @@ if __name__ == '__main__':
 	punt0 		= Simbolo(num_marcador[0], 0, [ANCHO-27, ALTO-30])
 	punt1		= Simbolo(num_marcador[0], 0, [ANCHO-44, ALTO-30])
 	punt2		= Simbolo(num_marcador[0], 0, [ANCHO-61, ALTO-30])
+	# Poderes
+	icono_escudo= Simbolo(num_marcador[15], 'icono_escudo', [123, ALTO-30])
+	icono_xe 	= Simbolo(num_marcador[10], 'x', [163, ALTO-30])
+	escudo = Simbolo(num_marcador[0], 0, [190, ALTO-30])
+	esc = Simbolo(num_marcador[14], 'escudo', [0, 0])
+	pildora = Simbolo(num_marcador[13], 'pildora', [0, 0])
+	pbandera = False # Indica si hay un poder o no en pantalla
 
 	# Crear un jugador
 	jugador = Jugador("images/playerShip1_red.png")
-	ls_jugador = pygame.sprite.Group() # para analizar las colisiones con las balas
+
+	# Grupos
+	# Lista para analizar las colisiones con las balas
+	ls_jugador = pygame.sprite.Group()
 	# Lista que va a contener todos los elementos
 	ls_todos = pygame.sprite.Group()
 	# Lista que contiene todos los enemigos
@@ -292,6 +317,8 @@ if __name__ == '__main__':
 	ls_balas = pygame.sprite.Group()
 	# Lista que contiene las balas disparadas por el enemigo
 	ls_ebalas = pygame.sprite.Group()
+	# Lista que contiene los poderes que estan en pantalla
+	ls_poderes = pygame.sprite.Group()
 
 	# Crear enemigos
 	for i in range(3):
@@ -312,6 +339,10 @@ if __name__ == '__main__':
 	ls_todos.add(punt2)
 	ls_todos.add(icono_puntos)
 	ls_todos.add(icono_xp)
+	# Sprites escudo
+	ls_todos.add(icono_escudo)
+	ls_todos.add(icono_xe)
+	ls_todos.add(escudo)
 
 	# Mouse invisible
 	pygame.mouse.set_visible(False)
@@ -333,10 +364,45 @@ if __name__ == '__main__':
 		jugador.set_pos(pos)
 		screen.blit(fondo,(0,0))
 
+		# El jugador toma un PODER
+		# POSICION ALEATORIA DONDE APARECERÁ EL PODER
+		xp = random.randrange(30, ANCHO-30)
+		yp = random.randrange(30, ALTO-30)
+		# CANTIDAD MAXIMA DE PODER A CAPTURAR
+		escmax = 9 # Siempre es 9
+		pildoramax = 9
+		 # POSIBILIDAD DE QUE SALGA UN PODER-> 1/1000
+		poder = random.randrange(1000)
+		if poder == 27 and pbandera == False: #27 -> numero aleatorio
+			sel = random.randrange(2)
+			if sel == 0: # Escudo
+				esc.pos = [xp, yp]
+				ls_todos.add(esc)
+				ls_poderes.add(esc)
+			elif sel == 1: # Pildora (Vida)
+				pildora.pos = [xp, yp]
+				ls_todos.add(pildora)
+				ls_poderes.add(pildora)
+			pbandera = True
+
+		for p in ls_poderes:
+			capturado = pygame.sprite.spritecollide(p, ls_jugador, False)
+			for cap in capturado:
+				if p.valor == 'escudo':
+					if escudo.valor < escmax:
+						escudo.valor += 1
+				elif p.valor == 'pildora':
+					if vida.valor < pildoramax:
+						vida.valor += 1
+				ls_todos.remove(p)
+				ls_poderes.remove(p)
+				pbandera = False
+
+
 		# Nave enemiga es destruida por el impacto de la bala
-		if len(ls_enemigo) == 0:
-			terminar = True
-			print "VICTORIA"
+		#if len(ls_enemigo) == 0:
+		#	terminar = True
+		#	print "VICTORIA"
 
 		for e in ls_enemigo:
 			ls_impactos = pygame.sprite.spritecollide(e, ls_balas, True)
@@ -350,9 +416,9 @@ if __name__ == '__main__':
 						ls_todos.remove(e)
 					# Un punto representa un impacto a una nave enemiga
 					p = aumentar_puntaje(puntos)
-					punt0.simbolo = p[0]
-					punt1.simbolo = p[1]
-					punt2.simbolo = p[2]
+					punt0.valor = p[0]
+					punt1.valor = p[1]
+					punt2.valor = p[2]
 					puntos += 1
 					print "PUNTAJE: ", puntos
 
@@ -360,13 +426,16 @@ if __name__ == '__main__':
 		for eb in ls_ebalas:
 			impactado = pygame.sprite.spritecollide(eb, ls_jugador, False)
 			for imp in impactado:
-				# Impacto de bala enemiga reduce la vida del jugador en 1
-				vida.simbolo -= 1
-				# Cuando las vidas llegan a 0, se termina el juego
-				if vida.simbolo < 0:
-					terminar = True
-					#ls_todos.remove(jugador)
-					print "FIN DEL JUEGO"
+				if escudo.valor > 0:
+					escudo.valor -= 1
+				else:
+					# Impacto de bala enemiga reduce la vida del jugador en 1
+					vida.valor -= 1
+					# Cuando las vidas llegan a 0, se termina el juego
+					if vida.valor < 0:
+						terminar = True
+						#ls_todos.remove(jugador)
+						print "FIN DEL JUEGO"
 				ls_ebalas.remove(eb)
 				ls_todos.remove(eb)
 
