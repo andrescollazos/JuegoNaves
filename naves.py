@@ -83,34 +83,38 @@ class Enemigo(pygame.sprite.Sprite):
 		pygame.sprite.Sprite.__init__(self)
 		self.image = pygame.image.load(imagen).convert_alpha() #Cargar imagen
 		self.rect = self.image.get_rect()
-		self.vidas = 2 # Vidas del enemigo
+		self.vidas = 1 # Vidas del enemigo
+		self.nivel = 1 # Nivel del enemigo
 		self.direccion = 0 # Sentido del movimiento del enemigo
+		self.velocidad = 0 # Velocidad del enemigo
 		self.disparar = False
 		self.recarga = 100
+		self.recargaFijo = 100
 
 	# Modificar posicion del enemigo
-	def set_pos(self, pos):
-		self.rect.x = pos[0]
-		self.rect.y = pos[1]
+	#def set_pos(self, pos):
+	#	self.rect.x = pos[0]
+	#	self.rect.y = pos[1]
 
 	# Actualizar el estado del enemigo
 	def update(self):
 		if self.rect.x <= 0:
 			self.direccion = 1
-			self.rect.y += 16 # Valor a ser modificado
+			self.rect.y += self.velocidad
 		if self.rect.x >= (ANCHO - 32):
 			self.direccion = 0
-			self.rect.y += 16 # Valor a ser modificado
+			self.rect.y += self.velocidad
 
 		if self.direccion == 1:
-			self.rect.x += 10 # Valor a ser modificado
+			self.rect.x += self.velocidad + 5
 		else:
-			self.rect.x -= 10 # Valor a ser modificado
+			self.rect.x -= self.velocidad + 5
 
 		# Disparar
 		if self.recarga == 0:
+			# La nave empieza a disparar cuando es visible en pantalla
 			if self.rect.y > -1*self.rect[3]: # Altura de la nave enemiga
-				self.recarga = random.randrange(80) # Velocidad de disparo
+				self.recarga = random.randrange(self.recargaFijo) # Velocidad de disparo
 				self.disparar = True
 		else:
 			self.recarga -= 1
@@ -142,7 +146,7 @@ class Bala(pygame.sprite.Sprite):
 # ------------------------------------------------------------------------------
 # CLASE MARCADOR
 #-------------------------------------------------------------------------------
-class Simbolo(pygame.sprite.Sprite):
+class Icono(pygame.sprite.Sprite):
 	def __init__(self, image, valor, posicion):
 		pygame.sprite.Sprite.__init__(self)
 		self.image = pygame.image.load(image).convert_alpha()
@@ -280,28 +284,36 @@ def btrayectoria(e, j): # b-> posicion nave enemiga al momento de disparar
 if __name__ == '__main__':
 	pygame.init()
 	screen = pygame.display.set_mode([ANCHO,ALTO])
-	# Cargar imagen de fondo
-	fondo = pygame.image.load("images/background.jpg").convert_alpha()
+	# Cargar imagen de fondo (imagenes de dominio publico)
+	fondo1 = pygame.image.load("images/background.jpg").convert_alpha()
+	fondo2 = pygame.image.load("images/background2.jpg").convert_alpha()
 
 	# ICONOS
 	# Vida del jugador
-	icono_vida 	= Simbolo(num_marcador[12], 'vida',[10,ALTO-30])
-	icono_xv 	= Simbolo(num_marcador[10], 'x', [57, ALTO-30])
-	vida 		= Simbolo(num_marcador[9], 9, [84, ALTO-30])
+	icono_vida 	= Icono(num_marcador[12], 'vida',[10,ALTO-30])
+	icono_xv 	= Icono(num_marcador[10], 'x', [57, ALTO-30])
+	vida 		= Icono(num_marcador[9], 9, [84, ALTO-30])
 	# Puntaje
-	icono_puntos= Simbolo(num_marcador[11], 'puntos', [ANCHO-131, ALTO-30])
-	icono_xp	= Simbolo(num_marcador[10], 'x', [ANCHO-88, ALTO-30])
+	icono_puntos= Icono(num_marcador[11], 'puntos', [ANCHO-131, ALTO-30])
+	icono_xp	= Icono(num_marcador[10], 'x', [ANCHO-88, ALTO-30])
 	puntos 		= 0
-	punt0 		= Simbolo(num_marcador[0], 0, [ANCHO-27, ALTO-30])
-	punt1		= Simbolo(num_marcador[0], 0, [ANCHO-44, ALTO-30])
-	punt2		= Simbolo(num_marcador[0], 0, [ANCHO-61, ALTO-30])
+	punt0 		= Icono(num_marcador[0], 0, [ANCHO-27, ALTO-30])
+	punt1		= Icono(num_marcador[0], 0, [ANCHO-44, ALTO-30])
+	punt2		= Icono(num_marcador[0], 0, [ANCHO-61, ALTO-30])
 	# Poderes
-	icono_escudo= Simbolo(num_marcador[15], 'icono_escudo', [123, ALTO-30])
-	icono_xe 	= Simbolo(num_marcador[10], 'x', [163, ALTO-30])
-	escudo = Simbolo(num_marcador[0], 0, [190, ALTO-30])
-	esc = Simbolo(num_marcador[14], 'escudo', [0, 0])
-	pildora = Simbolo(num_marcador[13], 'pildora', [0, 0])
+	icono_escudo= Icono(num_marcador[15], 'icono_escudo', [123, ALTO-30])
+	icono_xe 	= Icono(num_marcador[10], 'x', [163, ALTO-30])
+	escudo = Icono(num_marcador[0], 0, [190, ALTO-30])
+	esc = Icono(num_marcador[14], 'escudo', [0, 0])
+	pildora = Icono(num_marcador[13], 'pildora', [0, 0])
 	pbandera = False # Indica si hay un poder o no en pantalla
+	# --------------------------------------------------------------------------
+	# Nivel de juego
+	#---------------------------------------------------------------------------
+	nivel = Icono(num_marcador[1], 1, [10, 10])
+	edestruidos = 0
+	emax1 = 5 # Cantidad de enemigos del Nivel 1
+	emax2 = 10 # Cantidad de enemigos del Nivel 2
 
 	# Crear un jugador
 	jugador = Jugador("images/playerShip1_red.png")
@@ -320,11 +332,8 @@ if __name__ == '__main__':
 	# Lista que contiene los poderes que estan en pantalla
 	ls_poderes = pygame.sprite.Group()
 
-	# Crear enemigos
-	for i in range(3):
-		e = crearEnemigo(1)
-		ls_enemigo.add(e)
-		ls_todos.add(e)
+	# Los enemigos ahora son creados en el ciclo principal del juego
+
 	# Agregar sprites a la lista de todos los elementos
 	# Sprite del jugador
 	ls_jugador.add(jugador)
@@ -343,13 +352,32 @@ if __name__ == '__main__':
 	ls_todos.add(icono_escudo)
 	ls_todos.add(icono_xe)
 	ls_todos.add(escudo)
+	# Sprites nivel
+	ls_todos.add(nivel)
 
 	# Mouse invisible
 	pygame.mouse.set_visible(False)
+	crear = True # Booleano que permite saber si crear o no enemigos
 	terminar = False
 	reloj = pygame.time.Clock()
 
 	while not terminar:
+		# Crear enemigos
+		if crear:
+			if nivel.valor == 1:
+				emax = emax1
+			elif nivel.valor == 2:
+				emax = emax2
+			for i in range(emax):
+				e = crearEnemigo(nivel.valor)
+				e.vidas = nivel.valor + 1 # Vidas del enemigo
+				e.nivel = nivel.valor
+				e.recargaFijo = 100 - 5*nivel.valor
+				e.velocidad = 7*nivel.valor
+				ls_enemigo.add(e)
+				ls_todos.add(e)
+			crear = False
+
 		pos = pygame.mouse.get_pos()
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
@@ -362,7 +390,10 @@ if __name__ == '__main__':
 
 		# La posicion del jugador la define la posicion del mouse
 		jugador.set_pos(pos)
-		screen.blit(fondo,(0,0))
+		if nivel.valor == 1:
+			screen.blit(fondo1,(0,0))
+		elif nivel.valor == 2:
+			screen.blit(fondo2,(0,0))
 
 		# El jugador toma un PODER
 		# POSICION ALEATORIA DONDE APARECERÁ EL PODER
@@ -398,12 +429,7 @@ if __name__ == '__main__':
 				ls_poderes.remove(p)
 				pbandera = False
 
-
 		# Nave enemiga es destruida por el impacto de la bala
-		#if len(ls_enemigo) == 0:
-		#	terminar = True
-		#	print "VICTORIA"
-
 		for e in ls_enemigo:
 			ls_impactos = pygame.sprite.spritecollide(e, ls_balas, True)
 			for imp in ls_impactos:
@@ -421,6 +447,15 @@ if __name__ == '__main__':
 					punt2.valor = p[2]
 					puntos += 1
 					print "PUNTAJE: ", puntos
+
+		# Evaluar si el jugador termino un nivel o si gano el juego
+		if len(ls_enemigo) == 0:
+			if nivel.valor == 1:
+				crear = True
+				nivel.valor = 2
+			elif nivel.valor == 2:
+				terminar = True
+				print "VICTORIA"
 
 		# Bala enemigo impacta con el jugador
 		for eb in ls_ebalas:
@@ -453,6 +488,7 @@ if __name__ == '__main__':
 					bala.pos_j = pos # La bala se apunta al jugador
 					# Trayectoria de la bala hasta el jugador:
 					bala.trayectoria = btrayectoria((x,y), pos)
+					bala.velocidad = nivel.valor*6 # velocidad: n1-> 6  n2-> 12
 					ls_ebalas.add(bala)
 					ls_todos.add(bala)
 					enemigo.disparar = False
