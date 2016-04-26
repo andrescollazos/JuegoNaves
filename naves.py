@@ -94,20 +94,20 @@ class Enemigo(pygame.sprite.Sprite):
 	def update(self):
 		if self.rect.x <= 0:
 			self.direccion = 1
-			self.rect.y += 16
+			self.rect.y += 16 # Valor a ser modificado
 		if self.rect.x >= (ANCHO - 32):
 			self.direccion = 0
-			self.rect.y += 16
+			self.rect.y += 16 # Valor a ser modificado
 
 		if self.direccion == 1:
-			self.rect.x += 10
+			self.rect.x += 10 # Valor a ser modificado
 		else:
-			self.rect.x -= 10
+			self.rect.x -= 10 # Valor a ser modificado
 
 		# Disparar
 		if self.recarga == 0:
-			if self.rect.y > -84: # 84 es la altura de la nave enemiga
-				self.recarga = random.randrange(100)
+			if self.rect.y > -1*self.rect[3]: # Altura de la nave enemiga
+				self.recarga = random.randrange(80) # Velocidad de disparo
 				self.disparar = True
 		else:
 			self.recarga -= 1
@@ -123,7 +123,7 @@ class Bala(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.x = posicion[0]
 		self.rect.y = posicion[1]
-		self.velocidad = 5
+		self.velocidad = 5 # Valor a ser modificado
 		self.pos_j = 0 # Posicion(jugador) a la cual se dirige la bala
 		self.trayectoria = [] # Trayectoria desde la nave al jugador
 		self.cont = 0 # para moverse por el vector de trayectoria
@@ -239,7 +239,8 @@ def crearEnemigo(lvl):
 	elif lvl == 2:
 		enemigo = Enemigo(enemigos2[e])
 	enemigo.rect.x = random.randrange(ANCHO)
-	enemigo.rect.y = random.randrange(-252, -84)
+	# enemigo.rect[3] -> Altura del enemigo
+	enemigo.rect.y = random.randrange(-3*enemigo.rect[3], -1*enemigo.rect[3])
 	return enemigo
 
 # Funcion que retorna la trayectoria que seguirá la bala hasta el Jugador
@@ -247,9 +248,9 @@ def btrayectoria(e, j): # b-> posicion nave enemiga al momento de disparar
 	m = (e[1] - j[1])/(e[0] - j[0])
 	b = e[1] - m*e[0]
 	if j[0] < e[0]:
-		x = j[0] - 1000
+		x = j[0] - ANCHO*2
 	elif j[0] > e[0]:
-		x = j[0] + 1000
+		x = j[0] + ANCHO*2
 	elif j[0] == e[0]:
 		x = j[0]
 	y = m*x + b
@@ -269,16 +270,16 @@ if __name__ == '__main__':
 	# los puntos
 
 	# Vida del jugador
-	icono_vida 	= Simbolo(num_marcador[12], 'vida',[10,570])
-	icono_xv 	= Simbolo(num_marcador[10], 'x', [57, 570])
-	vida 		= Simbolo(num_marcador[9], 9, [84, 570])
+	icono_vida 	= Simbolo(num_marcador[12], 'vida',[10,ALTO-30])
+	icono_xv 	= Simbolo(num_marcador[10], 'x', [57, ALTO-30])
+	vida 		= Simbolo(num_marcador[9], 9, [84, ALTO-30])
 	# Puntaje
-	icono_puntos= Simbolo(num_marcador[11], 'puntos', [666, 570])
-	icono_xp	= Simbolo(num_marcador[10], 'x', [706, 570])
+	icono_puntos= Simbolo(num_marcador[11], 'puntos', [ANCHO-131, ALTO-30])
+	icono_xp	= Simbolo(num_marcador[10], 'x', [ANCHO-88, ALTO-30])
 	puntos 		= 0
-	punt0 		= Simbolo(num_marcador[0], 0, [771, 570])
-	punt1		= Simbolo(num_marcador[0], 0, [752, 570])
-	punt2		= Simbolo(num_marcador[0], 0, [733, 570])
+	punt0 		= Simbolo(num_marcador[0], 0, [ANCHO-27, ALTO-30])
+	punt1		= Simbolo(num_marcador[0], 0, [ANCHO-44, ALTO-30])
+	punt2		= Simbolo(num_marcador[0], 0, [ANCHO-61, ALTO-30])
 
 	# Crear un jugador
 	jugador = Jugador("images/playerShip1_red.png")
@@ -340,8 +341,9 @@ if __name__ == '__main__':
 		for e in ls_enemigo:
 			ls_impactos = pygame.sprite.spritecollide(e, ls_balas, True)
 			for imp in ls_impactos:
-				if e.rect.y > 0 - 83:	# La bala del jugador daña, solamente
-										# cuando el enemigo es visible
+				# La bala del jugador daña, solamente
+				# cuando el enemigo es visible
+				if e.rect.y > -1*(e.rect[3] - 1):
 					e.vidas -=1 #Por cada impactovida del enemigo disminuye en 1
 					if e.vidas == 0:
 						ls_enemigo.remove(e)
@@ -373,10 +375,11 @@ if __name__ == '__main__':
 		# DISPARO DE LOS ENEMIGOS
 		for enemigo in ls_enemigo:
 			# El enemigo solo empieza a disparar cuando este es visible
-			if enemigo.rect.y > 0 - 84: #84 -> altura del enemigo
+			if enemigo.rect.y > -1*(enemigo.rect[3]): # Altura del enemigo
 				if enemigo.disparar:
-					x = enemigo.rect.x + 5
-					y = enemigo.rect.y + 32
+					# El disparo sale de la mitad de la nave enemiga
+					x = enemigo.rect.x + (enemigo.rect[2]/2)
+					y = enemigo.rect.y + (enemigo.rect[3]/2)
 					bala = Bala('images/Lasers/laserRed01.png', [x,y])
 					bala.pos_j = pos # La bala se apunta al jugador
 					# Trayectoria de la bala hasta el jugador:
