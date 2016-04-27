@@ -90,6 +90,8 @@ class Enemigo(pygame.sprite.Sprite):
 		self.disparar = False
 		self.recarga = 100
 		self.recargaFijo = 100
+		self.trayectoria = [] # Trayectoria en la que se mueve enemigo (lvl 2)
+		self.cont = 0 # contador para recorrer trayectoria
 
 	# Modificar posicion del enemigo
 	#def set_pos(self, pos):
@@ -98,18 +100,28 @@ class Enemigo(pygame.sprite.Sprite):
 
 	# Actualizar el estado del enemigo
 	def update(self):
-		if self.rect.x <= 0:
-			self.direccion = 1
-			self.rect.y += self.velocidad
-		if self.rect.x >= (ANCHO - self.rect[2]):
-			self.direccion = 0
-			self.rect.y += self.velocidad
+		if self.nivel == 1:
+			if self.rect.x <= 0:
+				self.direccion = 1
+				self.rect.y += self.velocidad
+			if self.rect.x >= (ANCHO - self.rect[2]):
+				self.direccion = 0
+				self.rect.y += self.velocidad
 
-		if self.direccion == 1:
-			self.rect.x += self.velocidad + 5
-		else:
-			self.rect.x -= self.velocidad + 5
-
+			if self.direccion == 1:
+				self.rect.x += self.velocidad + 5
+			else:
+				self.rect.x -= self.velocidad + 5
+		elif self.nivel == 2:
+			print len(self.trayectoria)
+			if self.cont == len(self.trayectoria)-4:
+				self.trayectoria = caminos.espiral(self.trayectoria, 30)
+				self.cont = 0
+			else:
+				self.rect.x = self.trayectoria[self.cont][0]
+				self.rect.y = self.trayectoria[self.cont][1]
+				self.cont += 5
+				
 		# Disparar
 		if self.recarga == 0:
 			# La nave empieza a disparar cuando es visible en pantalla
@@ -254,17 +266,17 @@ def aumentar_puntaje(puntos):
 
 # lvl es el nivel en el que esta el jugador
 # i -> que tan lejos aparece de la zona visible
-def crearEnemigo(lvl, i):
+def crearEnemigo(lvl):
 	# Seleccionar un enemigo aleatorio
 	e = random.randrange(0, len(enemigos1))
 	if lvl == 1:
 		enemigo = Enemigo(enemigos1[e])
 	elif lvl == 2:
 		enemigo = Enemigo(enemigos2[e])
-	enemigo.rect.x = random.randrange(ANCHO)
+	enemigo.rect.x = random.randrange(84, ANCHO-84)
 	# enemigo.rect[3] -> Altura del enemigo
 	# El enemigo aparece aleatoriamente por encima del area visible
-	enemigo.rect.y = -1*enemigo.rect[3]*(1 + i*random.randrange(100)/100)
+	enemigo.rect.y = -1*enemigo.rect[3]*4*random.randrange(100)/100
 	return enemigo
 
 # Funcion que retorna la trayectoria que seguirá la bala hasta el Jugador
@@ -317,8 +329,8 @@ if __name__ == '__main__':
 	#---------------------------------------------------------------------------
 	nivel = Icono(num_marcador[1], 1, [10, 10])
 	edestruidos = 0
-	emax1 = 5 # Cantidad de enemigos del Nivel 1
-	emax2 = 10 # Cantidad de enemigos del Nivel 2
+	emax1 = 1 # Cantidad de enemigos del Nivel 1
+	emax2 = 3 # Cantidad de enemigos del Nivel 2
 
 	# Crear un jugador
 	jugador = Jugador("images/playerShip1_red.png")
@@ -378,11 +390,14 @@ if __name__ == '__main__':
 			elif nivel.valor == 2:
 				emax = emax2
 			for i in range(emax):
-				e = crearEnemigo(nivel.valor, i)
+				e = crearEnemigo(nivel.valor)
 				e.vidas = nivel.valor + 1 # Vidas del enemigo
 				e.nivel = nivel.valor
 				e.recargaFijo = 100 - 5*nivel.valor
 				e.velocidad = 7*nivel.valor
+				# RECORRIDO EN CIRCUNFERENCIA (LVL2)
+				x, y = e.rect.x, e.rect.y
+				e.trayectoria = caminos.circunferencia((x, y), 100)
 				ls_enemigo.add(e)
 				ls_todos.add(e)
 			crear = False
