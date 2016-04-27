@@ -51,7 +51,7 @@ def linea(p1, p2):
 #-------------------------------------------------------------------------------
 # En la carpeta PNG esta el diagrama que muestra la division de la cirncunferencia
 # por octantes -> /images/division_circ.png
-def simetricos(pantalla, color, vc, v, octantes):
+def simetricos(vc, v, octantes):
 	xc, yc = vc[0], vc[1]
 	x, y = v[0], v[1]
 	#pantalla.set_at((xc + x, yc + y), color) # 1
@@ -85,4 +85,25 @@ def circunferencia(centro, radio):
 			y = y - 1
 		x = x + 1
 		simetricos(centro, (x,y), octantes)
-	return octantes
+	# Ordenar la circunferencia:
+	o5 = octantes[4]
+	o5.reverse()
+	o7 = octantes[6]
+	o3 = octantes[2]
+	o3.reverse()
+	o4 = octantes[3]
+	o8 = octantes[7]
+	o8.reverse()
+	o6 = octantes[5]
+	o2 = octantes[1]
+	o2.reverse()
+	o1 = octantes[0]
+	return o5 + o7 + o3 + o4 + o8 + o6 + o2 + o1
+
+def espiral(trayectoria):
+	nueva = []
+	for i in trayectoria:
+		x = i[0]
+		y = i[1] + 5
+		nueva.append((x,y))
+	return nueva
