@@ -100,10 +100,10 @@ def circunferencia(centro, radio):
 	o1 = octantes[0]
 	return o5 + o7 + o3 + o4 + o8 + o6 + o2 + o1
 
-def espiral(trayectoria):
+def espiral(trayectoria, bajada):
 	nueva = []
 	for i in trayectoria:
 		x = i[0]
-		y = i[1] + 5
+		y = i[1] + bajada
 		nueva.append((x,y))
 	return nueva
