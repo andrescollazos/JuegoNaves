@@ -113,7 +113,6 @@ class Enemigo(pygame.sprite.Sprite):
 			else:
 				self.rect.x -= self.velocidad + 5
 		elif self.nivel == 2:
-			print len(self.trayectoria)
 			if self.cont == len(self.trayectoria)-4:
 				self.trayectoria = caminos.espiral(self.trayectoria, 30)
 				self.cont = 0
@@ -121,7 +120,7 @@ class Enemigo(pygame.sprite.Sprite):
 				self.rect.x = self.trayectoria[self.cont][0]
 				self.rect.y = self.trayectoria[self.cont][1]
 				self.cont += 5
-				
+
 		# Disparar
 		if self.recarga == 0:
 			# La nave empieza a disparar cuando es visible en pantalla
@@ -265,9 +264,9 @@ def aumentar_puntaje(puntos):
 	return [d1, d2, d3]
 
 # lvl es el nivel en el que esta el jugador
-# i -> que tan lejos aparece de la zona visible
-def crearEnemigo(lvl):
-	# Seleccionar un enemigo aleatorio
+# i -> en que tanda sale el enemigo
+def crearEnemigo(lvl, i):
+	# Seleccionar un enemigo aleatorio (color)
 	e = random.randrange(0, len(enemigos1))
 	if lvl == 1:
 		enemigo = Enemigo(enemigos1[e])
@@ -276,7 +275,9 @@ def crearEnemigo(lvl):
 	enemigo.rect.x = random.randrange(84, ANCHO-84)
 	# enemigo.rect[3] -> Altura del enemigo
 	# El enemigo aparece aleatoriamente por encima del area visible
-	enemigo.rect.y = -1*enemigo.rect[3]*4*random.randrange(100)/100
+	if lvl == 2:
+		i *= 3
+	enemigo.rect.y = -1*enemigo.rect[3]*(i*0.7)
 	return enemigo
 
 # Funcion que retorna la trayectoria que seguirá la bala hasta el Jugador
@@ -329,8 +330,8 @@ if __name__ == '__main__':
 	#---------------------------------------------------------------------------
 	nivel = Icono(num_marcador[1], 1, [10, 10])
 	edestruidos = 0
-	emax1 = 1 # Cantidad de enemigos del Nivel 1
-	emax2 = 3 # Cantidad de enemigos del Nivel 2
+	emax1 = 20 # Cantidad de enemigos del Nivel 1
+	emax2 = 30 # Cantidad de enemigos del Nivel 2
 
 	# Crear un jugador
 	jugador = Jugador("images/playerShip1_red.png")
@@ -389,8 +390,11 @@ if __name__ == '__main__':
 				emax = emax1
 			elif nivel.valor == 2:
 				emax = emax2
+			j = 1
 			for i in range(emax):
-				e = crearEnemigo(nivel.valor)
+				if i == 3*j:
+					j += 1
+				e = crearEnemigo(nivel.valor, j)
 				e.vidas = nivel.valor + 1 # Vidas del enemigo
 				e.nivel = nivel.valor
 				e.recargaFijo = 100 - 5*nivel.valor
